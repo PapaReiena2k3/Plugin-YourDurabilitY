@@ -1,0 +1,23 @@
+ExemplaryIngot:
+    Material: IRON_INGOT
+# Materials IDs: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html
+    CustomName: "Exemplary ingot"
+# The item custom name to check. Leave empty ("") to skip. 
+    Percentage: false
+# Percent amount (true) or only flat amount (false).
+    Amount: 150
+# Durability amount to repair.
+    Cost: 1
+# Repair level cost. At least 1. 
+Sunflower:
+    Material: SUNFLOWER
+    CustomName: ""
+    Percentage: false
+    Amount: 6
+    Cost: 1
+RunicLeather:
+    Material: leather
+    CustomName: "&dRunic leather"
+    Percentage: true
+    Amount: 20
+    Cost: 3

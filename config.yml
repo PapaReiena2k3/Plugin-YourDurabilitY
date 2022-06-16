@@ -1,0 +1,55 @@
+first-lore-line: true
+# If false, the plugin will check for the last lore line
+preffix-format: "&fDurability:"
+# MUST NOT have spaces.
+# This field will be check for durability changes and the '/ydy' command.
+color-durability: "&e"
+# Applies after the preffix-format to define de numbers color.
+Messages:
+    preffix-plugin: "&6[&9YourDurabilitY&6]"
+    main-ussage: "&eUsage: /ydy [get | reload | set | version]"
+    version: "&eCurrent version:"
+    reload: "&aConfigs reloaded."
+    set-success: "&aDone!"
+    set-missing-args: "&cMissing arguments. &eUsage: /ydy set [integer1]/[integer2] <RepairItems>"
+    set-invalid-int: "&cInvalid integer. &eUsage: /ydy set [integer1]/[integer2] <RepairItems>"
+    set-int2-greater: "&cInteger1 must be less than or equals to Integer2."
+    set-invalid-item: "&cInvalid item in hand, must support durability."
+    get-repair-success: "&6RepairItems:"
+    get-item-success: "&aDone!"
+    get-invalid-args: "&cInvalid args"
+    get-missing-args: "&cMissing args"
+    no-item: "&cThere is not item in main hand."
+    invalid-item: "&cInvalid item. Not in config"
+    no-repair: "&cThis item does not have repair items."
+    no-ydy: "&cItem not contains custom durability."
+    remove-success1: "&aRepair items removed."
+    remove-success2: "&aCustom durability removed."
+    remove-invalid-args: "&eUsage: /ydy remove [durability | repair]"
+    remove-missing-args: "&cMissing Arguments. &eUsage: /ydy remove [durability | repair]"
+    ri-success: "&6Reparable with:"
+Inventory:
+    vanilla-name: "&cNo puedes haces eso!"
+    vanilla-lore:
+        - "&fPara reparar un item con durabilidad"
+        - "&fpersonalizada debes hacer &eclic derecho"
+        - "&een el yunque con el item a reparar&f en"
+        - "&fla mano principal."
+    inventory-name: "&9Repair your freaking item here! &e:D"
+    repair-info-name: "&eClic para ver sus items de reparación"
+    repair-info-lore:
+        - "&eInstrucciones: &fSolo puedes modificar"
+        - "&fla ranura del material que se usará para"
+        - "&freparar el item junto al yunque. El panel"
+        - "&fblanco mostrará el costo actual."
+    repair-cost-name: "&fTotal level cost:&a"
+    repair-error-name: "Invalid item!"
+    materials-info-name: "&eClic para ir al menú de reparación"
+    materials-info-lore:
+        - "&eInstrucciones: &fAquí puedes visualizar"
+        - "&flos items con los que se puede reparar"
+        - "&fal item junto al yunque. Estos muestran"
+        - "&fsu costo y cantidad que reparan."
+    materials-lore-cost: "&eCost:&f"
+    materials-lore-amount: "&eAmount:&f"
+    
