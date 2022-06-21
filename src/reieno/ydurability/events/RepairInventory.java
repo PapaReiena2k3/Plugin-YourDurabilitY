@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
@@ -199,33 +200,15 @@ public class RepairInventory implements Listener{
 				}else if(slot == 16) {
 					event.setCancelled(true);
 					ItemStack result = event.getCurrentItem();
-					//event.setCancelled(true);
 					if(inv.getItem(14) != null && result != null && result != Main.glassPane && result.getItemMeta().hasLore()) {
 						Integer cost = Integer.valueOf(inv.getItem(17).getItemMeta().getDisplayName().substring(plugin.getConfig().getString("Inventory.repair-cost-name").length()+1));
 						
 						Player jugador = (Player) event.getWhoClicked();
 						Integer nivel = jugador.getLevel();
-						if(cost > nivel) return;
-						
-						//Inventory inv2 = event.getView().getBottomInventory();
-						/*if(accion.equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
-							//inventario del jugador
-							if(inv2.firstEmpty() == -1) {
-								event.setCancelled(true);
-								return;
-							}
-						}else if(accion.equals(InventoryAction.HOTBAR_SWAP)) {
-							if(inv2.getItem(event.getHotbarButton()) != null) {
-								event.setCancelled(true);
-								return;								
-							}else {
-								inv2.addItem(result);
-							}
-						}else if(event.getCursor() != null) {
-							event.setCancelled(true);
-							return;
-						}*/					
-						jugador.setLevel(nivel - cost);
+						if(!jugador.getGameMode().equals(GameMode.CREATIVE)) {
+							if(cost > nivel) return;				
+							jugador.setLevel(nivel - cost);	
+						}
 						jugador.getWorld().playSound(jugador.getLocation(), Sound.BLOCK_ANVIL_USE, 1.0f, 1.5f);
 						Integer restantes = inv.getItem(17).getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "remaining"), PersistentDataType.INTEGER);
 						if(restantes > 0) {
@@ -351,10 +334,6 @@ public class RepairInventory implements Listener{
 								String name = ChatColor.translateAlternateColorCodes('&', config.getString(repairItemID+".CustomName"));
 								if( ( (!name.equals(null) && !name.equals("")) || repair.getItemMeta().hasDisplayName()) &&
 									!repair.getItemMeta().getDisplayName().equals(name) ) {
-									//si name no es nulo y repair no tiene nombre custom y no es igual al nombre de repair
-									//Nombre de ingrediente incorrecto
-									//inv.setItem(16, Main.glassPane);
-									//inv.setItem(17, Main.whitePane);
 									continue;
 								}
 								amount = Float.valueOf(config.getString(repairItemID+".Amount"));

@@ -22,7 +22,7 @@ public class MaincmdTab implements TabCompleter{
 	}
 	private static final List<String> COMMANDS = Arrays.asList("set","get","remove","reload","version");
 	private static final List<String> SET = Arrays.asList("20/20","50/50","100/100");
-	private static final List<String> REMOVE = Arrays.asList("durability","repair");
+	private static final List<String> REMOVE = Arrays.asList("durability","repair","line");
 	private static final List<String> GET = Arrays.asList("item","repair");
 	
 public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {

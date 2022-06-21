@@ -1,5 +1,8 @@
 first-lore-line: true
 # If false, the plugin will check for the last lore line
+vanilla-anvil-uses: false
+# If true, the plugin will work like the vanilla anvil cost system.
+# Increase the level cost as the item is used on anvil.
 preffix-format: "&fDurability:"
 # MUST NOT have spaces.
 # This field will be check for durability changes and the '/ydy' command.
@@ -7,27 +10,29 @@ color-durability: "&e"
 # Applies after the preffix-format to define de numbers color.
 Messages:
     preffix-plugin: "&6[&9YourDurabilitY&6]"
-    main-ussage: "&eUsage: /ydy [get | reload | set | version]"
+    missing-args: "&cMissing args."
+    invalid-args: "&cInvalid args."
+    invalid-number: "&cInvalid number."
+    invalid-item: "&cInvalid item."
+    invalid-repair: "&cInvalid repair item."
+    no-item: "&cThere is not item in main hand."
+    no-repair: "&cThis item doesn't have repair items."
+    no-ydy: "&cItem not contains custom durability."
+    unsupported-durability: "&cThis item doesn't support durability."
+    main-usage: "&eUsage: /ydy [get | reload | set | version]"
     version: "&eCurrent version:"
     reload: "&aConfigs reloaded."
+    set-usage: "&eUsage: /ydy set [number1]/[number2] <RepairItems>"
     set-success: "&aDone!"
-    set-missing-args: "&cMissing arguments. &eUsage: /ydy set [integer1]/[integer2] <RepairItems>"
-    set-invalid-int: "&cInvalid integer. &eUsage: /ydy set [integer1]/[integer2] <RepairItems>"
-    set-int2-greater: "&cInteger1 must be less than or equals to Integer2."
-    set-invalid-item: "&cInvalid item in hand, must support durability."
+    get-usage: "&eUsage: /ydy get [repair | item]"
     get-repair-success: "&6RepairItems:"
-    get-item-success: "&aDone!"
-    get-invalid-args: "&cInvalid args"
-    get-missing-args: "&cMissing args"
-    no-item: "&cThere is not item in main hand."
-    invalid-item: "&cInvalid item. Not in config"
-    no-repair: "&cThis item does not have repair items."
-    no-ydy: "&cItem not contains custom durability."
-    remove-success1: "&aRepair items removed."
-    remove-success2: "&aCustom durability removed."
-    remove-invalid-args: "&eUsage: /ydy remove [durability | repair]"
-    remove-missing-args: "&cMissing Arguments. &eUsage: /ydy remove [durability | repair]"
-    ri-success: "&6Reparable with:"
+    get-item-usage: "&eUsage: /ydy get item [RepairItem] <Amount>"
+    get-item-success: "&aRecieved:"
+    remove-usage: "&eUsage: /ydy remove [durability | line | repair]"
+    remove-repair-success: "&aRepair items removed."
+    remove-durability-success: "&aCustom durability removed."
+    remove-line-usage: "&eUsage: /ydy remove line [number from 1]"
+    remove-line-success: "&aDone! Line removed:"
 Inventory:
     vanilla-name: "&cNo puedes haces eso!"
     vanilla-lore:

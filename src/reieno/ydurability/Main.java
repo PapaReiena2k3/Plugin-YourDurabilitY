@@ -4,13 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -18,14 +22,12 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import reieno.ydurability.commands.MaincmdTab;
-import reieno.ydurability.commands.Usercmd;
 import reieno.ydurability.commands.Maincmd;
 import reieno.ydurability.events.DispenserEvents;
 import reieno.ydurability.events.PlayerEvents;
 import reieno.ydurability.events.RepairInventory;
 
 public class Main extends JavaPlugin{
-	public String rutaConfig;
 	PluginDescriptionFile pdffile = getDescription();
 	public String version = pdffile.getVersion();
 	
@@ -36,7 +38,6 @@ public class Main extends JavaPlugin{
 	public static String preffix = "";
 	public static String invName = "";
 	public static boolean useFirstLine = true;
-	//public static boolean renameWhileRepair = true;
 	public static ItemStack glassPane;
 	public static ItemStack blackPane;
 	public static ItemStack grayPane;
@@ -52,6 +53,59 @@ public class Main extends JavaPlugin{
 		registerCommands();
 		registerConfig();
 		registerRepairItems();
+		
+		ItemStack item = new ItemStack(Material.GLASS_PANE);
+		ItemMeta newMeta = item.getItemMeta();
+		newMeta.setDisplayName(" ");
+		item.setItemMeta(newMeta);
+		glassPane = item;
+		
+		item = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+		newMeta = item.getItemMeta();
+		newMeta.setDisplayName(" ");
+		item.setItemMeta(newMeta);
+		blackPane = item;
+		
+		item = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+		newMeta = item.getItemMeta();
+		newMeta.setDisplayName(" ");
+		item.setItemMeta(newMeta);
+		grayPane = item;
+		
+		item = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
+		newMeta = item.getItemMeta();
+		newMeta.setDisplayName(" ");
+		item.setItemMeta(newMeta);
+		yellowPane = item;
+		
+	}
+	@Override
+	public void onDisable() {
+		//Retrieve items in repair inventories
+		for (Player p: Bukkit.getOnlinePlayers()) {
+			if(p.getOpenInventory().getTitle().equals(Main.invName)) {
+				Inventory inv = p.getOpenInventory().getTopInventory();
+				Boolean isRepairInv = false;
+				if(inv.getItem(10).equals(Main.anvilRepair)) isRepairInv = true;
+				Map<Integer, ItemStack> map;
+				if(isRepairInv) {
+					if(inv.getItem(14) != null) {
+						//Devolver el item a reparar y material de reparacion
+						 map = p.getInventory().addItem(inv.getItem(11), inv.getItem(14));
+					}else {
+						//Solo devoler el item a reparar
+						map = p.getInventory().addItem(inv.getItem(11));
+					}
+				}else {
+					//Solo devoler el item a reparar
+					map = p.getPlayer().getInventory().addItem(inv.getItem(11));
+				}
+				
+				for (ItemStack item : map.values()) {
+		        	p.getWorld().dropItem(p.getLocation(), item);
+		        }
+			}
+		}
 	}
 	public void registerEvents() {
 		PluginManager eventos = getServer().getPluginManager();
@@ -62,21 +116,18 @@ public class Main extends JavaPlugin{
 	public void registerCommands() {
 		this.getCommand("ydy").setExecutor(new Maincmd(this));
 		this.getCommand("ydy").setTabCompleter(new MaincmdTab(this));
-		this.getCommand("repairitems").setExecutor(new Usercmd(this));
 	}	
 	public void registerConfig() {
 		File configuration = new File(this.getDataFolder(),"config.yml");
-		//rutaConfig = configuration.getPath();
 		if(!configuration.exists()) {
 			this.getConfig().options().copyDefaults(true);
 			saveDefaultConfig();
 		}
 		Main.preffix = line("preffix-format")+line("color-durability");
 		Main.name = line("Messages.preffix-plugin")+ChatColor.RESET;
-		if(this.getConfig().getString("first-lore-line").equalsIgnoreCase("false")) {
-			useFirstLine = false;}
-		//if(this.getConfig().getString("rename-while-repair").equalsIgnoreCase("false")) {
-		//	renameWhileRepair = false;}
+		if(this.getConfig().getString("first-lore-line").equalsIgnoreCase("false"))
+			useFirstLine = false;
+		else useFirstLine = true;
 		Main.invName = line("Inventory.inventory-name");
 		
 		ItemStack item = new ItemStack(Material.RED_STAINED_GLASS_PANE);
@@ -105,35 +156,6 @@ public class Main extends JavaPlugin{
 		newMeta.setDisplayName(line("Inventory.repair-cost-name")+ " 0");
 		item.setItemMeta(newMeta);
 		whitePane = item;
-		
-		item = new ItemStack(Material.GLASS_PANE);
-		newMeta = item.getItemMeta();
-		newMeta.setDisplayName(" ");
-		item.setItemMeta(newMeta);
-		glassPane = item;
-		
-		item = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
-		newMeta = item.getItemMeta();
-		newMeta.setDisplayName(" ");
-		item.setItemMeta(newMeta);
-		blackPane = item;
-		
-		item = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-		newMeta = item.getItemMeta();
-		newMeta.setDisplayName(" ");
-		item.setItemMeta(newMeta);
-		grayPane = item;
-		
-		item = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
-		newMeta = item.getItemMeta();
-		newMeta.setDisplayName(" ");
-		item.setItemMeta(newMeta);
-		yellowPane = item;
-		
-        /*ConfigurationSection sec = Main.getPlugin().getConfig().getConfigurationSection("items");
-        for(String key : sec.getKeys(false)){
-            String name = Main.getPlugin().getConfig().getString("items." + key + ".name");
-        }*/
 		
 	}
     public void registerRepairItems() {
@@ -164,7 +186,6 @@ public class Main extends JavaPlugin{
 	public List<String> list(String path) {
 		
 		List<String> list = this.getConfig().getStringList(path);
-		//System.out.println(list);
 		List<String> returnList = new ArrayList<String>(); 
 		for (String s : list) {
 			returnList.add(ChatColor.translateAlternateColorCodes('&', s));			
@@ -174,8 +195,4 @@ public class Main extends JavaPlugin{
     public FileConfiguration getRepairItems() {
         return this.customConfig;
     }
-   
-    //Referenciar este archivo de configuracion con:
-    //plugin.getCustomConfig().getString("some-path");
-    //plugin.getrepairItems()
 }

@@ -8,14 +8,7 @@ commands:
   ydy:
     description: main and admin plugin command.
     permission: ydy.admin
-  repairitems:
-    description: shows the repair items of the item in main hand.
-    aliases: [ri]
-    permission: ydy.user
 permissions:
   ydy.admin:
     description: acces to /ydy command
-    default: op
-  ydy.user:
-    description: acces to /repairitems command
     default: op
