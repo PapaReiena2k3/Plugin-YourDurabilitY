@@ -1,6 +1,6 @@
 ExemplaryIngot:
     Material: IRON_INGOT
-# Materials IDs: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html
+# Material IDs: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html
     CustomName: "Exemplary ingot"
 # The item custom name to check. Leave empty ("") to skip. 
     Percentage: false
