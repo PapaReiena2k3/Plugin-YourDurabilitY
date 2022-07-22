@@ -38,6 +38,7 @@ public class Main extends JavaPlugin{
 	public static String preffix = "";
 	public static String invName = "";
 	public static boolean useFirstLine = true;
+	public static boolean vanillaAnvilUses = true;
 	public static ItemStack glassPane;
 	public static ItemStack blackPane;
 	public static ItemStack grayPane;
@@ -128,6 +129,9 @@ public class Main extends JavaPlugin{
 		if(this.getConfig().getString("first-lore-line").equalsIgnoreCase("false"))
 			useFirstLine = false;
 		else useFirstLine = true;
+		if(this.getConfig().getString("vanilla-anvil-uses").equalsIgnoreCase("false"))
+			vanillaAnvilUses = false;
+		else vanillaAnvilUses = true;
 		Main.invName = line("Inventory.inventory-name");
 		
 		ItemStack item = new ItemStack(Material.RED_STAINED_GLASS_PANE);

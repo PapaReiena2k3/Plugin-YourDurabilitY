@@ -1,11 +1,11 @@
 first-lore-line: true
-# If false, the plugin will check for the last lore line
+# If false, the plugin will use the last lore line
 vanilla-anvil-uses: false
-# If true, the plugin will work like the vanilla anvil cost system.
+# If true, the plugin will work with the vanilla anvil cost system.
 # Increase the level cost as the item is used on anvil.
 preffix-format: "&fDurability:"
 # MUST NOT have spaces.
-# This field will be check for durability changes and the '/ydy' command.
+# This text will be check for durability changes and the '/ydy' command.
 color-durability: "&e"
 # Applies after the preffix-format to define de numbers color.
 Messages:
@@ -47,7 +47,7 @@ Inventory:
         - "&fla ranura del material que se usará para"
         - "&freparar el item junto al yunque. El panel"
         - "&fblanco mostrará el costo actual."
-    repair-cost-name: "&fTotal level cost:&a"
+    repair-cost-name: "&fTotal level cost:"
     repair-error-name: "Invalid item!"
     materials-info-name: "&eClic para ir al menú de reparación"
     materials-info-lore:

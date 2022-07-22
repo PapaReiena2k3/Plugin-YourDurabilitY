@@ -24,6 +24,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.Repairable;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -163,25 +164,22 @@ public class RepairInventory implements Listener{
 			Boolean isRepairInv = false;
 			Inventory inv = event.getClickedInventory();
 			InventoryAction accion = event.getAction();
-			//event.getView()
+			Player jugador = (Player) event.getWhoClicked();
+			Integer nivel = jugador.getLevel();
 			if(inv.getType().equals(InventoryType.CHEST)) {
 				if(inv.getItem(10).equals(Main.anvilRepair)) isRepairInv = true;
 				Integer slot = event.getSlot();
 				if(slot == 14) {
 					if(isRepairInv) {
-						//calcular reparacion
-						calcularReparacion(inv);
+						calcularReparacion(inv, nivel);
 						return;
 					}else {
-						//cancelar
 						event.setCancelled(true);
 						return;
 					}
 				}else if(slot == 10) {
-					//Cambiando de inventario
 					event.setCancelled(true);
 					if(isRepairInv) {
-						//System.out.println("1");
 						if(inv.getItem(14) != null) {
 							//Devolver el material de reparacion
 							Map<Integer, ItemStack> map;
@@ -201,16 +199,14 @@ public class RepairInventory implements Listener{
 					event.setCancelled(true);
 					ItemStack result = event.getCurrentItem();
 					if(inv.getItem(14) != null && result != null && result != Main.glassPane && result.getItemMeta().hasLore()) {
-						Integer cost = Integer.valueOf(inv.getItem(17).getItemMeta().getDisplayName().substring(plugin.getConfig().getString("Inventory.repair-cost-name").length()+1));
-						
-						Player jugador = (Player) event.getWhoClicked();
-						Integer nivel = jugador.getLevel();
+						PersistentDataContainer container = inv.getItem(17).getItemMeta().getPersistentDataContainer();
+						Integer cost = container.get(new NamespacedKey(plugin, "cost"), PersistentDataType.INTEGER);;
 						if(!jugador.getGameMode().equals(GameMode.CREATIVE)) {
 							if(cost > nivel) return;				
 							jugador.setLevel(nivel - cost);	
 						}
 						jugador.getWorld().playSound(jugador.getLocation(), Sound.BLOCK_ANVIL_USE, 1.0f, 1.5f);
-						Integer restantes = inv.getItem(17).getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "remaining"), PersistentDataType.INTEGER);
+						Integer restantes = container.get(new NamespacedKey(plugin, "remaining"), PersistentDataType.INTEGER);
 						if(restantes > 0) {
 							ItemStack i = inv.getItem(14).clone();
 							i.setAmount(restantes);
@@ -254,7 +250,7 @@ public class RepairInventory implements Listener{
 				if(inv2.getItem(10).equals(Main.anvilMaterials)) {
 					return;
 				}else {
-					calcularReparacion(inv2);
+					calcularReparacion(inv2, nivel);
 				}
 			}
 		}
@@ -270,7 +266,7 @@ public class RepairInventory implements Listener{
 				}
 				Inventory inv = event.getView().getTopInventory();
 				if(inv.getItem(10).equals(Main.anvilRepair)) {
-					calcularReparacion(inv);
+					calcularReparacion(inv,((Player) event.getWhoClicked()).getLevel());
 				}
 			}			
 		}
@@ -301,8 +297,7 @@ public class RepairInventory implements Listener{
 	        }
 		}
 	}
-	
-	public void calcularReparacion(Inventory inv) {
+	public void calcularReparacion(Inventory inv, Integer playerLevel) {
 		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 			public void run() {
 				ItemStack item = inv.getItem(11);//El que se va a reparar
@@ -313,95 +308,93 @@ public class RepairInventory implements Listener{
 					inv.setItem(17, Main.whitePane);
 					return;
 				}
-				if(repair != null) {
-					PersistentDataContainer dataContainer = item.getItemMeta().getPersistentDataContainer();
-					FileConfiguration config = plugin.getRepairItems();
+				if(repair == null) {
+					inv.setItem(16, Main.glassPane);
+					inv.setItem(17, Main.whitePane);
+					return;
+				}
+				PersistentDataContainer dataContainer = item.getItemMeta().getPersistentDataContainer();
+				FileConfiguration config = plugin.getRepairItems();
+				for(NamespacedKey key: dataContainer.getKeys()) {
+					//  Catch errors  \\
+					if(!key.toString().startsWith("yourdurability:item")) {
+						continue;
+					}
+					String repairItemID = dataContainer.get(key, PersistentDataType.STRING);
+					if(!config.getString(repairItemID+".Material").equalsIgnoreCase(repair.getType().toString())) {
+						continue;
+					}
+					String name = ChatColor.translateAlternateColorCodes('&', config.getString(repairItemID+".CustomName"));
+					if( ( (!name.equals(null) && !name.equals("")) || repair.getItemMeta().hasDisplayName()) &&
+						!repair.getItemMeta().getDisplayName().equals(name) ) {
+						continue;
+					}
 					
-					for(NamespacedKey key: dataContainer.getKeys()) {
-						if(key.toString().startsWith("yourdurability:item")) {
-							//Es una clave de reparación
-							String repairItemID = dataContainer.get(key, PersistentDataType.STRING);
-							if(config.getString(repairItemID+".Material").equalsIgnoreCase(repair.getType().toString())) {
-								Float amount; // float porque puede ser porcentual
-								Integer cost;
-								try {
-									amount = Float.valueOf(config.getString(repairItemID+".Amount"));
-									cost = Integer.valueOf(config.getString(repairItemID+".Cost"));
-								}catch(NumberFormatException e) {
-									//No se pudo convertir el costo o monto
-									continue;
-								}
-								String name = ChatColor.translateAlternateColorCodes('&', config.getString(repairItemID+".CustomName"));
-								if( ( (!name.equals(null) && !name.equals("")) || repair.getItemMeta().hasDisplayName()) &&
-									!repair.getItemMeta().getDisplayName().equals(name) ) {
-									continue;
-								}
-								amount = Float.valueOf(config.getString(repairItemID+".Amount"));
-								cost = Integer.valueOf(config.getString(repairItemID+".Cost"));
-								amount = -amount; // no me acuerdo xd
-								
-								if(Boolean.valueOf(config.getString(repairItemID+".Percentage")) == true)
-									amount = (YDY.get(1) * amount / 100);
-								
-								Float totalAmount = amount * repair.getAmount();
-								Integer cantidadRestante = 0;
-								if(repair.getAmount() > 1) {										
-									Float a = YDY.get(1) - YDY.get(0) + totalAmount;
-									if(a > amount) {
-										cost = cost * repair.getAmount();														
-									}else {
-										//monto se pasa de lo necesario
-										a = a - (a % amount);
-										cantidadRestante = (int) (a/amount);
-										//cantidad que debe permanecer despues de la reparacion
-										cost = cost * (repair.getAmount() - cantidadRestante);
-									}
-								}												
-								Integer intAmount = Math.round(totalAmount);
-								if(YDY.get(0) - intAmount > YDY.get(1)) {
-									intAmount = 0;
-									YDY.set(0,YDY.get(1));}//Primer numero mayor que el segundo, se vuelven iguales
-								ItemStack result = item.clone();
-								result.setItemMeta(getNewMeta(item, YDY, intAmount));
-								inv.setItem(16, result);
-								
-								result = inv.getItem(17);
-								ItemMeta newMeta = result.getItemMeta();
-								PersistentDataContainer container = newMeta.getPersistentDataContainer();
-								container.set(new NamespacedKey(plugin, "remaining"), PersistentDataType.INTEGER, cantidadRestante);
-								newMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Inventory.repair-cost-name"))+ " "+cost);
-								result.setItemMeta(newMeta);
-								return;
-							}
+					Float amount; // float porque puede ser porcentual
+					Integer cost;
+					try {
+						amount = Float.valueOf(config.getString(repairItemID+".Amount"));
+						cost = Integer.valueOf(config.getString(repairItemID+".Cost"));
+					}catch(NumberFormatException e) {
+						continue;
+					}
+					//  No errors  \\
+					ItemStack result = item.clone();
+					amount = Float.valueOf(config.getString(repairItemID+".Amount"));
+					cost = Integer.valueOf(config.getString(repairItemID+".Cost"));
+					amount = -amount; // no me acuerdo xd
+					
+					if(Boolean.valueOf(config.getString(repairItemID+".Percentage")) == true)
+						amount = (YDY.get(1) * amount / 100);
+					
+					Float totalAmount = amount * repair.getAmount();
+					Integer cantidadRestante = 0;
+					if(repair.getAmount() > 1) {										
+						Float a = YDY.get(1) - YDY.get(0) + totalAmount;
+						if(a > amount) {
+							cost = cost * repair.getAmount();														
+						}else {
+							//monto se pasa de lo necesario
+							a = a - (a % amount);
+							cantidadRestante = (int) (a/amount);
+							//cantidad que debe permanecer despues de la reparacion
+							cost = cost * (repair.getAmount() - cantidadRestante);
 						}
 					}
-					inv.setItem(16, Main.glassPane);
-					inv.setItem(17, Main.whitePane);
+					Integer intAmount = Math.round(totalAmount);
+					if(YDY.get(0) - intAmount > YDY.get(1)) {
+						intAmount = 0;
+						YDY.set(0,YDY.get(1));}//Primer numero mayor que el segundo, se vuelven iguales
+					result.setItemMeta(getNewMeta(item, YDY, intAmount));
 					
-				}else {
-					inv.setItem(16, Main.glassPane);
-					inv.setItem(17, Main.whitePane);
+					if(Main.vanillaAnvilUses) {
+						System.out.println("vanillaAnvilUses");
+						Integer repairCost = ((Repairable) result.getItemMeta()).getRepairCost();
+						System.out.println("RepairCost: "+repairCost);
+						cost = cost + repairCost;
+						ItemMeta newMeta = result.getItemMeta();
+						((Repairable) newMeta).setRepairCost(repairCost+1);
+						result.setItemMeta(newMeta);
+					}
+					inv.setItem(16, result);
+					
+					result = inv.getItem(17);
+					ItemMeta newMeta = result.getItemMeta();
+					PersistentDataContainer container = newMeta.getPersistentDataContainer();
+					container.set(new NamespacedKey(plugin, "remaining"), PersistentDataType.INTEGER, cantidadRestante);
+					container.set(new NamespacedKey(plugin, "cost"), PersistentDataType.INTEGER, cost);
+					String repairCostName = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Inventory.repair-cost-name"));
+					ChatColor color;
+					if(cost > playerLevel) color = ChatColor.RED;
+					else color = ChatColor.GREEN;
+					newMeta.setDisplayName(repairCostName+" "+color+cost);
+					result.setItemMeta(newMeta);
+					return;
 				}
+				inv.setItem(16, Main.glassPane);
+				inv.setItem(17, Main.whitePane);
 			}
 		}, 0L);
 	}
-
-	/*
-	 if(repair.getAmount() > 1) {
-		//Ajustar cuando hay mas de un item de reparación
-		Integer cantidadRestante = 0;
-		Float a = YDY.get(1) - YDY.get(0) + totalAmount;
-		if(a > amount) {
-			cost = cost * repair.getAmount();														
-		}else {
-			//monto se pasa de lo necesario
-			a = a - (a % amount);
-			if(a > 0) {
-				cantidadRestante = (int) (a/amount);
-				//cantidad que debe permanecer despues de la reparacion
-			}
-		}
-	}
-	*/
 	
 }
